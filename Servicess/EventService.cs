@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EventManagement.DTO;
 using EventManagement.Models;
 using EventManagement.Repository;
 using EventManagement.Services;
@@ -45,6 +46,36 @@ namespace EventManagement.Services
             var allEvents = await _eventRepository.GetAllWithAttendeesAsync();
             return allEvents.Where(e => e.Date <= targetDate && e.Date >= DateTime.UtcNow).ToList();
         }
+        public async Task<EventDto> CreateEventAsync(CreateEventDto dto)
+        {
+            if (dto.Date < DateTime.UtcNow)
+                throw new Exception("Event date cannot be in the past.");
+
+            var ev = _mapper.Map<Event>(dto);
+            var created = await _eventRepository.AddAsync(ev);
+            return _mapper.Map<EventDto>(created);
+        }
+        public async Task<List<EventDto>> GetEventsAsync(
+            string? location = null,
+            DateTime? date = null,
+            bool sortByAttendeeCount = false)
+        {
+            var events = await _eventRepository.GetAllWithAttendeesAsync();
+
+            // Filtering
+            if (!string.IsNullOrEmpty(location))
+                events = events.Where(e => e.Location.Contains(location, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (date.HasValue)
+                events = events.Where(e => e.Date.Date == date.Value.Date).ToList();
+
+            // Sorting
+            if (sortByAttendeeCount)
+                events = events.OrderByDescending(e => e.Attendees.Count).ToList();
+
+            return _mapper.Map<List<EventDto>>(events);
+        }
+
 
     }
 }
