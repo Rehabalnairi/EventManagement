@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using EventManagement.Services;
 using EventManagement.Repository;
 namespace EventManagement
@@ -26,6 +29,20 @@ namespace EventManagement
             builder.Services.AddScoped<EventService>();
             builder.Services.AddScoped<AttendeeService>();
             builder.Services.AddScoped<EventReportService>();
+            // JWT Authentication
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddJwtBearer(options =>
+            {
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuer = false,
+               ValidateAudience = false,
+               ValidateLifetime = true,
+               ValidateIssuerSigningKey = true,
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_here"))
+           };
+               });
+
 
             // AutoMapper
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
@@ -43,8 +60,19 @@ namespace EventManagement
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            //swagger Documentation
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Event Management API",
+                    Version = "v1",
+                    Description = "API documentation for Event Management system"
+                });
+            });
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
             app.Run();

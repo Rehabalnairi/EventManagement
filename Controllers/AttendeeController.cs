@@ -14,6 +14,8 @@ public class AttendeeController : ControllerBase
     {
         _attendeeService = attendeeService;
     }
+  
+
 
     // GET /api/attendee/event/1
     [HttpGet("event/{eventId}")]
