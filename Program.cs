@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using EventManagement.Services;
 using EventManagement.Repository;
+using Serilog;
 namespace EventManagement
 {
     public class Program
@@ -33,15 +34,15 @@ namespace EventManagement
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options =>
             {
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateIssuer = false,
-               ValidateAudience = false,
-               ValidateLifetime = true,
-               ValidateIssuerSigningKey = true,
-               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_here"))
-           };
-               });
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_here"))
+                };
+            });
 
 
             // AutoMapper
@@ -70,44 +71,48 @@ namespace EventManagement
                     Version = "v1",
                     Description = "API documentation for Event Management system"
                 });
+                ////JwT
+                //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                //{
+                //    In = ParameterLocation.Header,
+                //    Description = "Please enter JWT with Bearer prefix",
+                //    Name = "Authorization",
+                //    Type = SecuritySchemeType.ApiKey
+                //});
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                      });
+
             });
+            //Logging
+            Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+             .CreateLogger();
+
+            builder.Host.UseSerilog();
 
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.Run();
 
 
 
         }
-        //Global Error Handling Middleware
-        public class ErrorHandlingMiddleware
-           {
-            private readonly RequestDelegate _next;
-            private readonly ILogger<ErrorHandlingMiddleware> _logger;
-
-            public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
-            {
-                _next = next;
-                _logger = logger;
-            }
-
-            public async Task InvokeAsync(HttpContext context)
-            {
-                try
-                {
-                    await _next(context);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unhandled exception");
-                    context.Response.StatusCode = 500;
-                    await context.Response.WriteAsJsonAsync(new { message = ex.Message });
-                }
-            }
+        
+       }
         }
 
-    }
-}

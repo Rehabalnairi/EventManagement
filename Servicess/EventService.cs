@@ -12,6 +12,7 @@ namespace EventManagement.Services
     {
         private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<EventService> _logger;
 
         public EventService(IEventRepository eventRepository, IMapper mapper)
         {
@@ -73,6 +74,7 @@ namespace EventManagement.Services
             if (sortByAttendeeCount)
                 events = events.OrderByDescending(e => e.Attendees.Count).ToList();
 
+            _logger.LogInformation("New event created successfully: {EventTitle}");
             return _mapper.Map<List<EventDto>>(events);
         }
 
