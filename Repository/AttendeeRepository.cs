@@ -1,6 +1,7 @@
 ﻿using EventManagement.Models;
 using EventManagement.DbContext;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace EventManagement.Repository
 
@@ -20,5 +21,16 @@ namespace EventManagement.Repository
         }
 
 
+        public async Task<Attendee> AddAsync(Attendee attendee)
+        {
+            _context.Attendees.Add(attendee);
+            await _context.SaveChangesAsync();
+            return attendee;
+        }
+
+        public async Task<List<Attendee>> FindAsync(Expression<Func<Attendee, bool>> predicate)
+        {
+            return await _context.Attendees.Where(predicate).ToListAsync();
+        }
     }
 }

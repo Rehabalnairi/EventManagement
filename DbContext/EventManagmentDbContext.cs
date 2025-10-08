@@ -19,16 +19,20 @@ namespace EventManagement.DbContext
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Attendee>()
-                .HasIndex(a => a.Email).IsUnique();
+                .HasIndex(a => a.Email)
+                .IsUnique();
 
-            // Seeding two sample events
+            modelBuilder.Entity<Attendee>()
+                .Property(a => a.RegisteredAt)
+                .HasDefaultValueSql("GETDATE()"); 
+
             modelBuilder.Entity<Event>().HasData(
                 new Event
                 {
                     EventId = 1,
                     Title = "Tech Conference 2024",
                     Description = "A conference about the latest in technology.",
-                    Date = DateTime.UtcNow.AddDays(10),
+                    Date = new DateTime(2025, 10, 20),
                     Location = "New York City",
                     MaxAttendees = 200
                 },
@@ -37,11 +41,13 @@ namespace EventManagement.DbContext
                     EventId = 2,
                     Title = "Health & Wellness Expo",
                     Description = "An expo focused on health and wellness products and services.",
-                    Date = DateTime.UtcNow.AddDays(25),
+                    Date = new DateTime(2025, 11, 5),
                     Location = "Los Angeles",
                     MaxAttendees = 150
                 }
             );
         }
+
+
     }
 }

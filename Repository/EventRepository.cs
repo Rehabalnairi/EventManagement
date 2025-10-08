@@ -1,6 +1,6 @@
 ﻿using EventManagement.DbContext;
 using EventManagement.Models;
-using Microsoft.EntityFrameworkCore; // Add this using directive
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagement.Repository
 {
@@ -22,6 +22,18 @@ namespace EventManagement.Repository
         {
             return await _context.Events.Include(e => e.Attendees)
                 .FirstOrDefaultAsync(e => e.EventId == id);
+        }
+
+        public async Task<Event?> GetByIdAsync(int id)
+        {
+            return await _context.Events.FindAsync(id);
+        }
+
+        public async Task<Event> AddAsync(Event newEvent)
+        {
+            var addedEvent = await _context.Events.AddAsync(newEvent);
+            await _context.SaveChangesAsync();
+            return addedEvent.Entity;
         }
     }
 }
