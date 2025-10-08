@@ -5,6 +5,7 @@ using EventManagement.Repository;
 using EventManagement.Services;
 
 
+using Microsoft.Extensions.Logging;
 
 namespace EventManagement.Services
 {
@@ -14,10 +15,12 @@ namespace EventManagement.Services
         private readonly IMapper _mapper;
         private readonly ILogger<EventService> _logger;
 
-        public EventService(IEventRepository eventRepository, IMapper mapper)
+        public EventService(IEventRepository eventRepository, IMapper mapper, ILogger<EventService> logger)
         {
             _eventRepository = eventRepository;
             _mapper = mapper;
+            _logger = logger;
+
         }
 
         public async Task<List<Event>> GetAllEventsAsync()
