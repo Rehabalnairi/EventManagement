@@ -22,8 +22,13 @@ public class AttendeeController : ControllerBase
     [HttpGet("event/{eventId}")]
     public async Task<IActionResult> GetAttendeesByEvent(int eventId)
     {
-        var attendees = await _attendeeService.GetAttendeesByEventIdAsync(eventId);
+        var attendees = await NewMethod(eventId);
         return Ok(attendees);
+
+        Task<List<Attendee>> NewMethod(int eventId)
+        {
+            return _attendeeService.GetAttendeesByEventIdAsync(eventId);
+        }
     }
 
     // POST /api/attendee

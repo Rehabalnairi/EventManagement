@@ -9,10 +9,11 @@ namespace EventManagement.Services
 {
     public class AttendeeService : IAttendeeService
     {
+        //Depencencies
         private readonly IAttendeeRepository _attendeeRepository;
         private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
-
+        
         public AttendeeService(IAttendeeRepository attendeeRepository, IEventRepository eventRepository, IMapper mapper)
         {
             _attendeeRepository = attendeeRepository;
@@ -49,7 +50,7 @@ namespace EventManagement.Services
 
             var attendee = _mapper.Map<Attendee>(dto);
             var created = await _attendeeRepository.AddAsync(attendee);
-            return _mapper.Map<AttendeeDto>(created);
+            return _mapper.Map<AttendeeDto>(created);//send to API
         }
 
     }
