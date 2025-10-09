@@ -8,6 +8,7 @@ using EventManagement.DTO;
 [Route("api/[controller]")]
 public class AttendeeController : ControllerBase
 {
+    
     private readonly AttendeeService _attendeeService;
 
     public AttendeeController(AttendeeService attendeeService)

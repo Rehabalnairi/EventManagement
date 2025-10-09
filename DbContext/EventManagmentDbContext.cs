@@ -24,7 +24,7 @@ namespace EventManagement.DbContext
 
             modelBuilder.Entity<Attendee>()
                 .Property(a => a.RegisteredAt)
-                .HasDefaultValueSql("GETDATE()"); 
+                .HasDefaultValueSql("GETDATE()"); //automatic time from Database
 
             modelBuilder.Entity<Event>().HasData(
                 new Event
